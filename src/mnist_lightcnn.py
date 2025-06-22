@@ -81,3 +81,26 @@ if __name__ == "__main__":
     plt.xlabel("epoch"); plt.ylabel("accuracy")
     plt.savefig(OUTPUT_DIR / "acc.png")     # ★変更
     plt.close()
+
+    # --- テスト画像16枚の予測結果を保存 ---
+    # モデル再構築＆重み読込
+    net = TinyNet()
+    net.load_state_dict(torch.load("models/mnist_light.pt"))
+    net.eval()
+
+    # テストデータセットから16枚ランダム取得
+    tfm = T.Compose([T.ToTensor(), T.Normalize((0.1307,), (0.3081,))])
+    test_ds = torchvision.datasets.MNIST('data', train=False, transform=tfm)
+    idx = torch.randperm(len(test_ds))[:16]
+
+    plt.figure(figsize=(5,5))
+    for i, id in enumerate(idx, 1):
+        img, label = test_ds[id]
+        pred = net(img.unsqueeze(0)).argmax().item()
+        plt.subplot(4,4,i)
+        plt.axis('off')
+        plt.title(f"T:{label}/P:{pred}")
+        plt.imshow(img.squeeze(), cmap='gray')
+    plt.tight_layout()
+    plt.savefig(OUTPUT_DIR / "sample_preds.png")
+    plt.close()
