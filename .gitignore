@@ -1,0 +1,29 @@
+# ─── Python 仮想環境 ───
+env/
+.venv/
+
+# ─── Python キャッシュ ───
+__pycache__/
+*.py[cod]
+
+# ─── VS Code 個人設定 ───
+.vscode/*
+!.vscode/settings.json      # 設定だけは残す
+
+# ─── PyTorch / 学習結果 ───
+*.pt
+*.pth
+
+# ─── LaTeX 補助ファイル ───
+*.aux
+*.log
+*.toc
+*.lof
+*.lot
+*.synctex.gz
+*.fdb_latexmk
+*.fls
+
+# ─── OS のゴミ ───
+.DS_Store
+Thumbs.db

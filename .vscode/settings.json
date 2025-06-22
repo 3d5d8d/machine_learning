@@ -1,0 +1,48 @@
+{
+  // ───────────── Python仮想化 ─────────────
+  "python.defaultInterpreterPath": "${workspaceFolder}\\env\\Scripts\\python.exe",
+
+  // ───────────── LaTeX: レシピ & ツール ─────────────
+  "latex-workshop.latex.recipes": [
+    {
+      "name": "latexmk (lualatex only)",
+      "tools": ["lualatexmk"]
+    }
+  ],
+  "latex-workshop.latex.tools": [
+    {
+      "name": "lualatexmk",
+      "command": "latexmk",
+      "args": [
+        "-lualatex",
+        "-interaction=nonstopmode",
+        "-synctex=1",
+        "%DOC%"
+      ]
+    }
+  ],
+
+  // ───────────── LaTeX: PDF ビューア ─────────────
+  "latex-workshop.view.pdf.viewer": "tab",
+  "latex-workshop.latex.autoClean.run": "onBuilt",
+  "latex-workshop.view.pdf.external.command": "SumatraPDF",
+  "latex-workshop.view.pdf.external.args": [
+    "-reuse-instance",
+    "%PDF%"
+  ],
+  "latex-workshop.view.pdf.internal.synctex.keybinding": "ctrl-click",  // ← “+” を削除
+
+  // ───────────── VS Code ターミナルで自動 Activate ─────────────
+  "terminal.integrated.profiles.windows": {
+    "VenvPwsh": {
+      "source": "PowerShell",
+      "icon": "terminal-powershell",
+      "args": [
+        "-NoExit",
+        "-Command",
+        "& '${workspaceFolder}\\env\\Scripts\\Activate.ps1'"
+      ]
+    }
+  },
+  "terminal.integrated.defaultProfile.windows": "VenvPwsh"   // ← スキーマ警告は出るが動作可
+}
