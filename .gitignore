@@ -27,3 +27,8 @@ __pycache__/
 # ─── OS のゴミ ───
 .DS_Store
 Thumbs.db
+
+#deep learning関連
+models/
+*.png
+results/figs/
