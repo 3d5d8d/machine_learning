@@ -4,10 +4,22 @@
 \setsansjfont{Yu Gothic}
 
 \begin{document}
-\section{機械学習の基礎}
- こんにちは。これは機械学習に関するドキュメントです。
-\subsection{機械学習の定義}
+\section{機械学習で学ぶPythonの基礎}
+ Pythonの入門書は多くありますが, 数値計算やリストの扱いで飽きてしまう人が多く, 読み切れる人は少ないでしょう. そこで本稿では
+ 機械学習を題材にして, Pythonの基礎を学ぶことを目的とします. 具体的には, 機械学習の基本的な概念やアルゴリズムを学びながら, 
+ Pythonの文法やデータ構造を理解していきます. これにより, 最速で Pythonの基礎を習得し, 機械学習の実装に取り組むことができるようになります.
+\subsection{早速実践機械学習}
  機械学習とは、コンピュータがデータから学習し、予測や分類を行う技術です。
+\subsection{Module, Package, Library}
+ Pythonでは、機械学習のための多くのライブラリが用意されています。代表的なものには、NumPy、Pandas、Scikit-learn、TensorFlow、PyTorchなどがあります。
+ import numpy as np
+ という表現は、NumPyというライブラリをnpという名前でインポートすることを意味します。これにより、NumPyの機能をnpという短い名前で使用できるようになります。
+ すなわち, import module名 as あだ名 という形でimportするのですね.
+ それではここで, moduleを実際に作ってみましょう. 例えば
+
+ moduleの基本的な構成がわかると
+ from module名  import 関数名 as あだ名
+ という形も用意に理解できるようになります. これはつまり, from filename import function name as あだ名 が可能ということを意味します.
 \subsection{機械学習の種類}
  機械学習には、教師あり学習、教師なし学習、強化学習などの種類があります。
 \subsection{機械学習の応用}

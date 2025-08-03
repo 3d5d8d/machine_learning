@@ -222,3 +222,6 @@ plt.show()
 # This is optional, if you want to use the model after computing the loss landscape
 for i, param in enumerate(model.parameters()):
     param.data = trained_params[i]
+
+# saving the trained model
+torch.save(model.state_dict(), '../models/mnist_cnn_trained.pt')
