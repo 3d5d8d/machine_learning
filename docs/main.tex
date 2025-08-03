@@ -1,7 +1,25 @@
 \documentclass{ltjsarticle}      % ← ltjsarticle!
 \usepackage{luatexja-fontspec}   % 日本語フォント読み込み
+\usepackage{listings}            % コードハイライト用
+\usepackage{xcolor}              % 色指定用
+\usepackage{fancyvrb}            % 整形済みテキスト用
+
 \setmainjfont{Yu Mincho}         % 自由に変更 OK
 \setsansjfont{Yu Gothic}
+
+% コードスタイル設定
+\lstset{
+    language=bash,
+    basicstyle=\ttfamily\small,
+    backgroundcolor=\color{gray!10},
+    frame=single,
+    framesep=5pt,
+    breaklines=true,
+    showstringspaces=false,
+    commentstyle=\color{green!50!black},
+    keywordstyle=\color{blue},
+    stringstyle=\color{red}
+}
 
 \begin{document}
 \section{機械学習で学ぶPythonの基礎}
@@ -32,4 +50,144 @@
  決定木は、データを分類するためのツリー構造のモデルです。
 \subsection{ニューラルネットワーク, CNN}
  ニューラルネットワークは、人間の脳の構造を模したモデルで、深層学習に使用されます。
+
+\appendix
+\section{Gitによるバージョン管理とプロジェクト構成}
+
+\subsection{Gitの基本概念}
+Gitは分散型バージョン管理システムで、ソースコードの変更履歴を追跡・管理するためのツールです。
+機械学習プロジェクトでは、コードの変更履歴を管理し、実験結果を再現可能にするために重要な役割を果たします。
+
+\subsection{プロジェクト構造とモジュール化}
+大規模な機械学習プロジェクトでは、以下のような構造でコードを整理することが推奨されます：
+
+\begin{verbatim}
+MyProject/
+├── src/                    # ソースコード
+│   ├── models/             # モデル定義
+│   ├── data/               # データ処理
+│   ├── train/              # 学習スクリプト
+│   ├── analysis/           # 分析ツール
+│   └── visualization/      # 可視化
+├── exefile/                # 実行ファイル
+├── models/                 # 保存されたモデル
+├── results/                # 実験結果
+└── data/                   # データセット
+\end{verbatim}
+
+\subsection{Pythonのインポートシステム}
+異なるディレクトリのモジュールをインポートする際は、パスの設定が重要です：
+
+\begin{lstlisting}[language=Python]
+import sys
+import os
+
+# プロジェクトルートをパスに追加
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'src'))
+
+# モジュールのインポート
+from train.mn_cnn_train import train_model
+from analysis.mn_cnn_lossf import analyze_loss_landscape
+from visualization.mn_cnn_plots import plot_training_results
+\end{lstlisting}
+
+\subsection{Gitの基本操作}
+
+\subsubsection{全ファイルの追加とコミット}
+プロジェクトの全ファイルをGitに追加する基本的な手順：
+
+\begin{lstlisting}
+# 現在の状態を確認
+git status
+
+# 全ファイルを追加
+git add .
+# または
+git add -A
+
+# コミット
+git commit -m "MNIST CNN プロジェクト初期実装"
+
+# リモートリポジトリにプッシュ
+git push
+\end{lstlisting}
+
+\subsubsection{.gitignoreファイルの活用}
+GitHubにアップロードしたくないファイル（大きなデータセットやモデルファイル）は、
+\texttt{.gitignore}ファイルで除外します：
+
+\begin{lstlisting}
+# Python関連
+__pycache__/
+*.pyc
+*.pyo
+.Python
+
+# 機械学習関連
+models/*.pt
+models/*.pth
+data/
+results/
+*.pkl
+
+# IDE設定
+.vscode/
+.idea/
+
+# OS関連
+.DS_Store
+Thumbs.db
+\end{lstlisting}
+
+\subsection{改行コードの問題}
+異なるOS間でプロジェクトを共有する際、改行コードの違いによる警告が表示されることがあります：
+
+\begin{lstlisting}
+warning: in the working copy of 'file.py', 
+LF will be replaced by CRLF the next time Git touches it
+\end{lstlisting}
+
+この警告は以下の方法で対処できます：
+
+\begin{lstlisting}
+# 改行コード自動変換を無効化
+git config core.autocrlf false
+
+# またはグローバル設定
+git config --global core.autocrlf false
+\end{lstlisting}
+
+\subsection{ローカルGitとGitHubの使い分け}
+\begin{itemize}
+    \item \textbf{ローカルGit}: 全ての変更履歴、大きなファイル、個人的な実験結果を管理
+    \item \textbf{GitHub}: ソースコードのみを公開、データセットやモデルファイルは除外
+\end{itemize}
+
+この使い分けにより、コードの共有と個人データの保護を両立できます。
+
+\subsection{環境管理の将来展望}
+
+\subsubsection{Docker による環境コンテナ化}
+長期的な開発では、Dockerによる環境のコンテナ化が重要になります：
+
+\begin{lstlisting}[language=bash]
+# Dockerfile例
+FROM python:3.11-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY . .
+CMD ["python", "exefile/mn_cnn_main.py"]
+\end{lstlisting}
+
+\subsubsection{段階的な環境管理戦略}
+\begin{enumerate}
+    \item \textbf{学習期}: Git + .gitignore による基本管理
+    \item \textbf{中級期}: Docker導入による環境統一
+    \item \textbf{上級期}: Kubernetes + CI/CD による本格運用
+\end{enumerate}
+
+この段階的アプローチにより、学習コストを最小化しながら
+本格的な機械学習システムへの発展が可能になります。
+
 \end{document}
