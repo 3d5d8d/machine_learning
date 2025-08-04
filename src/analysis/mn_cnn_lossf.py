@@ -20,7 +20,7 @@ def analyze_loss_landscape(model, test_loader, criterion):
 
     random_vector = [torch.randn_like(param.data) for param in model.parameters()]
 
-    t_range = torch.linspace(-1, -1, 50)
+    t_range = torch.linspace(-0.01, -0.01, 50)
     loss_values = []
     for t in tqdm(t_range): # if no need for progress bar, use: for t in t_range:
         loss = compute_loss_at_point(model, t, trained_params, random_vector, test_loader, criterion) # t is a tensor,if you like explicitly, use t.item() to get the value
