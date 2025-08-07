@@ -190,4 +190,265 @@ CMD ["python", "exefile/mn_cnn_main.py"]
 この段階的アプローチにより、学習コストを最小化しながら
 本格的な機械学習システムへの発展が可能になります。
 
+\section{Advanced PyTorch: torch.func による関数型プログラミング}
+
+\subsection{torch.func とは}
+PyTorch 2.0以降で導入された\texttt{torch.func}は、モデルのパラメータを
+直接変更することなく、関数的にモデルを操作できる革新的な機能です。
+
+\subsection{従来の方法の問題点}
+従来のパラメータ変更は危険な副作用を持ちます：
+
+\begin{lstlisting}[language=Python]
+# 危険: モデルのパラメータを直接変更
+for i, param in enumerate(model.parameters()):
+    param.data = trained_params[i] + t * random_vector[i]
+
+outputs = model(input)  # 変更されたパラメータで実行
+
+# パラメータを手動で復元する必要がある
+for i, param in enumerate(model.parameters()):
+    param.data = trained_params[i]
+\end{lstlisting}
+
+\subsection{torch.func による安全な実装}
+\texttt{functional\_call}を使用すると、元のモデルを変更せずに
+異なるパラメータでモデルを実行できます：
+
+\begin{lstlisting}[language=Python]
+import torch.func
+
+def compute_loss_with_perturbation(model, t, random_vector, 
+                                 test_loader, criterion):
+    # 1. 摂動パラメータを辞書形式で準備
+    perturbed_params = {}
+    for (name, param), rand_vec in zip(model.named_parameters(), 
+                                      random_vector):
+        perturbed_params[name] = param + t * rand_vec
+    
+    # 2. 元のモデルは変更せず、一時的にパラメータを適用
+    model.eval()
+    total_loss = 0.0
+    with torch.no_grad():
+        for images, labels in test_loader:
+            # functional_call: 非破壊的なモデル実行
+            outputs = torch.func.functional_call(
+                model, perturbed_params, images)
+            loss = criterion(outputs, labels)
+            total_loss += loss.item()
+    
+    return total_loss / len(test_loader)
+\end{lstlisting}
+
+\subsection{実用例: 損失ランドスケープ解析}
+機械学習の最適化過程を視覚化する損失ランドスケープ解析での使用例：
+
+\begin{lstlisting}[language=Python]
+def analyze_loss_landscape(model, test_loader, criterion):
+    # ランダムな方向ベクトルを生成
+    random_vector = [torch.randn_like(param) 
+                    for param in model.parameters()]
+    
+    # t ∈ [-0.05, 0.05] の範囲で損失を計算
+    t_range = torch.linspace(-0.05, 0.05, 50)
+    loss_values = []
+    
+    for t in t_range:
+        loss = compute_loss_with_perturbation(
+            model, t, random_vector, test_loader, criterion)
+        loss_values.append(loss)
+    
+    return t_range, loss_values
+
+# 使用例
+model = trained_cnn_model
+t_vals, losses = analyze_loss_landscape(model, test_loader, criterion)
+
+# 結果のプロット
+import matplotlib.pyplot as plt
+plt.plot(t_vals.numpy(), losses)
+plt.xlabel('Parameter Perturbation (t)')
+plt.ylabel('Loss')
+plt.title('Loss Landscape around Optimum')
+plt.show()
+\end{lstlisting}
+
+\subsection{torch.func の利点}
+\begin{enumerate}
+    \item \textbf{安全性}: 元のモデルパラメータが変更されない
+    \item \textbf{並列処理}: 複数のパラメータセットを同時に試験可能
+    \item \textbf{関数型}: 副作用のない純粋関数として動作
+    \item \textbf{デバッグ性}: パラメータの復元忘れによるバグを防止
+\end{enumerate}
+
+この手法により、安全で効率的なモデル解析が可能になり、
+機械学習研究における新しいアプローチが開けます。
+
+\section{高級Python機能の解説}
+
+\subsection{zip関数の活用}
+\texttt{zip}関数は複数のイテラブルを同時に処理する強力な機能です：
+
+\begin{lstlisting}[language=Python]
+# 基本的なzip
+names = ['Alice', 'Bob', 'Charlie']
+ages = [25, 30, 35]
+
+for name, age in zip(names, ages):
+    print(f"{name}は{age}歳です")
+# 出力: Aliceは25歳です, Bobは30歳です, Charlieは35歳です
+
+# torch.funcでの応用例
+for (name, param), rand_vec in zip(model.named_parameters(), random_vector):
+    perturbed_params[name] = param + t * rand_vec
+\end{lstlisting}
+
+\subsubsection{zipの詳細動作}
+\texttt{zip}は以下のように動作します：
+
+\begin{lstlisting}[language=Python]
+# zipの内部動作イメージ
+list1 = [1, 2, 3]
+list2 = ['a', 'b', 'c']
+zipped = zip(list1, list2)
+
+# zipは次のタプルを順次生成
+# (1, 'a'), (2, 'b'), (3, 'c')
+
+# リストに変換して確認
+print(list(zip(list1, list2)))
+# [(1, 'a'), (2, 'b'), (3, 'c')]
+\end{lstlisting}
+
+\subsection{辞書の作成と操作}
+
+\subsubsection{辞書内包表記（Dictionary Comprehension）}
+波括弧\texttt{\{\}}を使った効率的な辞書作成：
+
+\begin{lstlisting}[language=Python]
+# 基本的な辞書内包表記
+squares = {x: x**2 for x in range(5)}
+print(squares)  # {0: 0, 1: 1, 2: 4, 3: 9, 4: 16}
+
+# 条件付き辞書内包表記
+even_squares = {x: x**2 for x in range(10) if x % 2 == 0}
+print(even_squares)  # {0: 0, 2: 4, 4: 16, 6: 36, 8: 64}
+
+# torch.funcでの実際の使用例
+trained_params = {name: param.data.clone() 
+                 for name, param in model.named_parameters()}
+\end{lstlisting}
+
+\subsubsection{通常の辞書作成との比較}
+\begin{lstlisting}[language=Python]
+# 従来の方法（冗長）
+trained_params = {}
+for name, param in model.named_parameters():
+    trained_params[name] = param.data.clone()
+
+# 辞書内包表記（簡潔）
+trained_params = {name: param.data.clone() 
+                 for name, param in model.named_parameters()}
+\end{lstlisting}
+
+\subsection{ジェネレータ式とリスト内包表記}
+
+\subsubsection{リスト内包表記}
+角括弧\texttt{[]}を使った効率的なリスト作成：
+
+\begin{lstlisting}[language=Python]
+# 基本的なリスト内包表記
+squares = [x**2 for x in range(5)]
+print(squares)  # [0, 1, 4, 9, 16]
+
+# torch.funcでの使用例
+random_vector = [torch.randn_like(param.data) 
+                for param in model.parameters()]
+
+# 条件付きリスト内包表記
+large_params = [param for param in model.parameters() 
+               if param.numel() > 1000]
+\end{lstlisting}
+
+\subsubsection{従来の方法との比較}
+\begin{lstlisting}[language=Python]
+# 従来の方法
+random_vector = []
+for param in model.parameters():
+    random_vector.append(torch.randn_like(param.data))
+
+# リスト内包表記（Pythonic）
+random_vector = [torch.randn_like(param.data) 
+                for param in model.parameters()]
+\end{lstlisting}
+
+\subsection{enumerate関数の活用}
+インデックスと値を同時に取得する便利な関数：
+
+\begin{lstlisting}[language=Python]
+# 基本的なenumerate
+items = ['apple', 'banana', 'cherry']
+for i, item in enumerate(items):
+    print(f"{i}: {item}")
+# 出力: 0: apple, 1: banana, 2: cherry
+
+# 機械学習での使用例（従来コード）
+for i, param in enumerate(model.parameters()):
+    param.data = trained_params[i] + t * random_vector[i]
+\end{lstlisting}
+
+\subsection{実践的な組み合わせ例}
+
+\subsubsection{複雑なデータ処理の例}
+これらの機能を組み合わせた実践例：
+
+\begin{lstlisting}[language=Python]
+# データの前処理例
+data = [('Alice', 85), ('Bob', 92), ('Charlie', 78)]
+
+# 辞書内包表記 + 条件付きフィルタリング
+high_scorers = {name: score for name, score in data if score >= 80}
+print(high_scorers)  # {'Alice': 85, 'Bob': 92}
+
+# リスト内包表記 + enumerate + zip
+names = ['Alice', 'Bob', 'Charlie']
+scores = [85, 92, 78]
+indexed_data = [(i, name, score) 
+               for i, (name, score) in enumerate(zip(names, scores))]
+print(indexed_data)
+# [(0, 'Alice', 85), (1, 'Bob', 92), (2, 'Charlie', 78)]
+\end{lstlisting}
+
+\subsubsection{torch.funcコードの詳細解説}
+実際のコードを行ごとに解説：
+
+\begin{lstlisting}[language=Python]
+# 1. 空の辞書を作成
+perturbed_params = {}
+
+# 2. zip関数で2つのイテラブルを同時処理
+#    model.named_parameters(): (名前, パラメータ)のタプルを生成
+#    random_vector: ランダムベクトルのリスト
+for (name, param), rand_vec in zip(model.named_parameters(), random_vector):
+    # 3. 辞書に新しいキー・値ペアを追加
+    #    キー: パラメータの名前（文字列）
+    #    値: 元のパラメータ + 摂動
+    perturbed_params[name] = param + t * rand_vec
+
+# 結果: {'conv1.weight': tensor(...), 'conv1.bias': tensor(...), ...}
+\end{lstlisting}
+
+\subsection{Pythonらしいコードの書き方}
+これらの機能を使うことで、より\textbf{Pythonic}なコードが書けます：
+
+\begin{itemize}
+    \item \textbf{可読性}: コードの意図が明確
+    \item \textbf{簡潔性}: 少ない行数で同じ処理を実現
+    \item \textbf{効率性}: C言語レベルで最適化された内部処理
+    \item \textbf{保守性}: バグが入りにくい構造
+\end{itemize}
+
+これらの高級機能をマスターすることで、より効率的で美しい
+機械学習コードが書けるようになります。
+
 \end{document}
