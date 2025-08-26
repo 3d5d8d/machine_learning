@@ -9,7 +9,7 @@ def plot_training_results(train_losses, train_accuracies, test_accuracies, t_ran
     # 1. loss
     plt.figure(figsize=(8, 6))
     plt.subplot(1, 3, 1)
-    plt.plot(range(1, 11), train_losses, 'b-', linewidth=2)
+    plt.plot(range(1, len(train_losses) + 1), train_losses, 'b-', linewidth=2)
     plt.title('Training Loss')
     plt.xlabel('Epoch')
     plt.ylabel('Loss')
