@@ -12,14 +12,14 @@ import torch.nn as nn
 
 def main():
     # 学習実行
-    model, train_losses, train_accuracies, test_loader = train_model()
+    model, train_losses, train_accuracies, test_accuracies, test_loader = train_model()
     
     # 損失ランドスケープ分析
     criterion = nn.CrossEntropyLoss()
     t_range, loss_values = analyze_loss_landscape(model, test_loader, criterion)
     
     # 可視化
-    plot_training_results(train_losses, train_accuracies, t_range, loss_values)
+    plot_training_results(train_losses, train_accuracies, test_accuracies, t_range, loss_values)
     
     print("全ての処理が完了しました！")
 

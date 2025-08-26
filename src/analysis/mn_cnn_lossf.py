@@ -12,7 +12,7 @@ def compute_loss_at_point(model, t, trained_params, random_vector, test_loader, 
     total_loss = 0.0
     with torch.no_grad():
         for images, labels in test_loader:
-            # functional_callを使ってパラメータを一時的に適用
+            # apply parameters temporarily by using functional_call
             outputs = torch.func.functional_call(model, perturbed_params, images)
             loss = criterion(outputs, labels)
             total_loss += loss.item()
@@ -26,7 +26,7 @@ def analyze_loss_landscape(model, test_loader, criterion):
     # create random perturbation vectors
     random_vector = [torch.randn_like(param.data) for param in model.parameters()]
 
-    t_range = torch.linspace(-0.05, 0.05, 50)
+    t_range = torch.linspace(-0.01, 0.01, 100)
     loss_values = []
     for t in tqdm(t_range):
         loss = compute_loss_at_point(model, t, trained_params, random_vector, test_loader, criterion)
