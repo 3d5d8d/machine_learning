@@ -26,6 +26,14 @@ def analyze_loss_landscape(model, test_loader, criterion):
     # create random perturbation vectors
     random_vector = [torch.randn_like(param.data) for param in model.parameters()]
 
+    # 各層の方向ベクトルを、対応する重み（パラメータ）のノルムで正規化する
+    # これが簡易版の Filter-wise Normalization です
+    for i, param in enumerate(model.parameters()):
+        # ゼロ除算を避ける
+        if torch.norm(param.data) > 1e-8 and torch.norm(random_vector[i]) > 1e-8:
+            random_vector[i] = random_vector[i] * (torch.norm(param.data) / torch.norm(random_vector[i]))
+    
+    # tの範囲をより適切に修正
     t_range = torch.linspace(-0.01, 0.01, 100)
     loss_values = []
     for t in tqdm(t_range):
@@ -33,6 +41,10 @@ def analyze_loss_landscape(model, test_loader, criterion):
         loss_values.append(loss)
 
     return t_range, loss_values
+
+
+
+
 
 
 # 元のコード（コメントアウト）
