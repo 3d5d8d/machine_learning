@@ -43,11 +43,53 @@ def analyze_loss_landscape(model, test_loader, criterion):
     return t_range, loss_values
 
 
+def analyze_loss_landscape_multi(model, test_loader, criterion, N_vec=5):
+    trained_params = {name: param.data.clone() for name, param in model.named_parameters()}
+    all_loss_values = []
+    t_range = torch.linspace(-0.5, 0.5, 100)
+
+    for i in range(N_vec):
+        random_vector = [torch.randn_like(param.data) for param in model.parameters()]
+        loss_values = []
+        for t in tqdm(t_range):
+            loss = compute_loss_at_point(model, t, trained_params, random_vector, test_loader, criterion)
+            loss_values.append(loss)
+        all_loss_values.append(loss_values)
+
+    return t_range, all_loss_values
 
 
+def analyze_loss_landgrad(model, test_loader, criterion, N_vec = 5):
+    trained_params = {name: param.data.clone() for name, param in model.named_parameters()}
+    all_loss_values = []
+    t_range = torch.linspace(-0.5, 0.5, 100)
+
+    #ここから↓
+    data_iter = iter(test_loader)
+    for i in range(N_vec):
+
+        try:
+            images, labels = next(data_iter)
+            image, label = images[0].unsqueeze(0), labels[0].unsqueeze(0) # バッチから1つだけ取り出す
+        except StopIteration:
+            print("データローダーの終端に達しました。")
+            break
+        
+        model.zero_grad()
+        output = model(image)
+        loss = criterion(output, label)
+        grad_vector = torch.autograd.grad(loss, model.parameters())
+    #↑ここまで追加
+        loss_values = []
+        for t in tqdm(t_range):
+            current_loss = compute_loss_at_point(model, t, trained_params, grad_vector, test_loader, criterion)
+            loss_values.append(current_loss)
+        all_loss_values.append(loss_values)
+
+    return t_range, all_loss_values
 
 
-# 元のコード（コメントアウト）
+#元のコード
 """
 def compute_loss_at_point(model, t, trained_params, random_vector, test_loader, criterion):
     for i, param in enumerate(model.parameters()):

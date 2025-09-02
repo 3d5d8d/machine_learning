@@ -4,10 +4,10 @@ import os
 # src/ ディレクトリをパスに追加
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'src'))
 
-# 正しいファイル名でインポート
+# ファイル名でインポート
 from train.mn_cnn_train import train_model
-from analysis.mn_cnn_lossf import analyze_loss_landscape
-from visualization.mn_cnn_plots import plot_training_results  # ファイル名修正
+from analysis.mn_cnn_lossf import analyze_loss_landscape, analyze_loss_landscape_multi, analyze_loss_landgrad
+from visualization.mn_cnn_plots import plot_training_results 
 import torch.nn as nn
 
 def main():
@@ -16,8 +16,8 @@ def main():
     
     # 損失ランドスケープ分析
     criterion = nn.CrossEntropyLoss()
-    t_range, loss_values = analyze_loss_landscape(model, test_loader, criterion)
-    
+    t_range, loss_values = analyze_loss_landgrad(model, test_loader, criterion, N_vec=5)
+
     # 可視化
     plot_training_results(train_losses, train_accuracies, test_accuracies, t_range, loss_values)
     

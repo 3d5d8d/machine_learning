@@ -1,6 +1,10 @@
 import matplotlib.pyplot as plt
 import os
 
+import matplotlib.pyplot as plt
+import os
+import numpy as np
+
 def plot_training_results(train_losses, train_accuracies, test_accuracies, t_range, loss_values):
 
     # Create results/figs directory if it doesn't exist
@@ -8,7 +12,6 @@ def plot_training_results(train_losses, train_accuracies, test_accuracies, t_ran
 
     # 1. loss
     plt.figure(figsize=(8, 6))
-    plt.subplot(1, 3, 1)
     plt.plot(range(1, len(train_losses) + 1), train_losses, 'b-', linewidth=2)
     plt.title('Training Loss')
     plt.xlabel('Epoch')
@@ -33,13 +36,22 @@ def plot_training_results(train_losses, train_accuracies, test_accuracies, t_ran
     plt.show()
     print("Training & Test Accuracy を training_accuracy.png に保存しました")
 
-    # 3. Loss Landscape (別画像)
+    # 3. Loss Landscape (adapting multivec)
     plt.figure(figsize=(8, 6))
-    plt.plot(t_range.numpy(), loss_values, 'b-', linewidth=2)
+
+    # if Judging solo or multiple(list)
+    if loss_values and isinstance(loss_values[0], list):
+        plt.title('Multiple Loss Landscapes')
+        for i, single_loss_values in enumerate(loss_values):
+            plt.plot(t_range.numpy(), single_loss_values, linewidth=2, label=f'Vector {i+1}')
+    else:
+        # 従来通りの単一プロット
+        plt.title('Loss Landscape')
+        plt.plot(t_range.numpy(), loss_values, 'b-', linewidth=2)
+
     plt.axvline(x=0, color='r', linestyle='--', alpha=0.7, label='θ (trained)')
     plt.xlabel('t')
     plt.ylabel('L(θ + tv)')
-    plt.title('Loss Landscape')
     plt.legend()
     plt.grid(True, alpha=0.3)
     plt.tight_layout()
