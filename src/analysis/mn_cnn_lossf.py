@@ -59,10 +59,10 @@ def analyze_loss_landscape_multi(model, test_loader, criterion, N_vec=5):
     return t_range, all_loss_values
 
 
-def analyze_loss_landgrad(model, test_loader, criterion, N_vec = 5):
+def analyze_loss_landgrad(model, test_loader, criterion, N_vec):
     trained_params = {name: param.data.clone() for name, param in model.named_parameters()}
     all_loss_values = []
-    t_range = torch.linspace(-0.5, 0.5, 100)
+    t_range = torch.linspace(-0.01, 0.01, 100)
 
     #ここから↓
     data_iter = iter(test_loader)
