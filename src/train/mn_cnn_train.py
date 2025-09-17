@@ -5,7 +5,7 @@ from models.mn_cnn_simple import MNISTcnn
 from data.mn_data_loader import get_mnist_loaders
 from evaluate.mn_cnn_eval import evaluate_model
 
-def train_model(epochs=10, lr=0.001, batch_size=64):
+def train_model(epochs=30, lr=0.001, batch_size=64):
     train_loader, test_loader = get_mnist_loaders(batch_size)
     model = MNISTcnn()
     criterion = nn.CrossEntropyLoss()
