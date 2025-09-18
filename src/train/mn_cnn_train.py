@@ -1,13 +1,13 @@
 import torch
 import torch.nn as nn
 from tqdm import tqdm
-from models.mn_cnn_simple import MNISTcnn
+from models.mn_cnn_overlr import MNISTcnn_ovlr
 from data.mn_data_loader import get_mnist_loaders
 from evaluate.mn_cnn_eval import evaluate_model
 
 def train_model(epochs=30, lr=0.001, batch_size=64):
     train_loader, test_loader = get_mnist_loaders(batch_size)
-    model = MNISTcnn()
+    model = MNISTcnn_ovlr()
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
