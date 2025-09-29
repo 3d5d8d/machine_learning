@@ -8,8 +8,8 @@ from evaluate.mn_cnn_eval import evaluate_model
 def train_model(epochs=30, lr=0.001, batch_size=64):
     train_loader, test_loader = get_mnist_loaders(batch_size)
     model = MNISTcnn_ovlr()
-    criterion = nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+    criterion = nn.CrossEntropyLoss() #this is loss function
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr) #Adam is better than SGD, Adagrad, Momentum.
 
     train_losses = []
     train_accuracies = []

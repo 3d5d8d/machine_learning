@@ -1,5 +1,6 @@
 import torch
 from torchvision import datasets, transforms
+#Using torch library, we don't have to set complicated settings, like one-hot, faltten(Basicaly, this dont need for CNN)
 
 def get_mnist_loaders(BATCH_SIZE=64):
     transformed = transforms.Compose([transforms.ToTensor()])
