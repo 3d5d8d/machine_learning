@@ -14,7 +14,7 @@ import torch.nn as nn
 def main():
     # 学習実行
     #model, train_losses, train_accuracies, test_accuracies, test_loader = train_model() #when using mn_cnn_train.py
-    trainer = Trainer(epochs=10, lr=0.001, batch_size=64)
+    trainer = Trainer(epochs=30, lr=0.001, batch_size=64)
     model, train_losses, train_accuracies, test_accuracies, test_loader = trainer.run()
     
     # 損失ランドスケープ分析

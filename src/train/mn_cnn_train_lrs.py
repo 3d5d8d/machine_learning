@@ -10,7 +10,7 @@ from data.mn_data_loader import get_mnist_loaders
 from evaluate.mn_cnn_eval import evaluate_model
 
 class Trainer:
-    def __init__(self, epochs=10, lr=0.001, batch_size=64):
+    def __init__(self, epochs=None, lr=None, batch_size=None):
         self.epochs = epochs
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         print(f"Using device: {self.device}")
@@ -27,8 +27,9 @@ class Trainer:
         self.model = MNISTcnn_ovlr().to(self.device)
         self.criterion = nn.CrossEntropyLoss()
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=lr)
-        self.scheduler = torch.optim.lr_scheduler.ExponentialLR(self.optimizer, gamma=0.1) #select scheduler
-        
+        self.scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(self.optimizer, T_max=epochs, eta_min=0) #select scheduler
+        #self.scheduler = torch.optim.lr_scheduler.ExponentialLR(self.optimizer, gamma=0.1) # if you want to use exp, uncomment this line and comment the above line
+
         # 4. 結果を記録するリスト
         self.train_losses = []
         self.train_accuracies = []
@@ -41,13 +42,24 @@ class Trainer:
         correct_train = 0
         total_train = 0
 
-        for images, labels in tqdm(self.train_loader, desc=f"Training Epoch {epoch+1}"):
+        for i, (images, labels) in enumerate(tqdm(self.train_loader, desc=f"Training Epoch {epoch+1}")):
             images, labels = images.to(self.device), labels.to(self.device)
             
             self.optimizer.zero_grad()
             outputs = self.model(images)
             loss = self.criterion(outputs, labels)
             loss.backward()
+
+            # calculate gradient norm for monitoring (optional)
+            total_norm = 0
+            for p in self.model.parameters():
+                if p.grad is not None:
+                    param_norm = p.grad.data.norm(2)
+                    total_norm += param_norm.item() ** 2
+            total_norm = total_norm ** 0.5
+            self.writer.add_scalar('Gradients/Total_Norm', total_norm, epoch * len(self.train_loader) + i)
+
+            
             self.optimizer.step()
             
             total_loss += loss.item()
