@@ -1,6 +1,6 @@
 import torch
 
-def evaluate_model(model, data_loader, device='cpu'):
+def evaluate_model(model, data_loader, device):
     """
     指定されたデータローダーを使ってモデルの精度を評価します。
 

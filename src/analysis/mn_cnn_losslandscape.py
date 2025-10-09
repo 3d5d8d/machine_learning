@@ -4,6 +4,7 @@ from tqdm import tqdm
 
 def compute_loss_at_point(model, t, trained_params, random_vector, test_loader, criterion):
     # creating dictionary of perturbed parameters, and updating them
+    device = next(model.parameters()).device
     perturbed_params = {}
     for (name, param), rand_vec in zip(model.named_parameters(), random_vector):
         perturbed_params[name] = param + t * rand_vec
@@ -12,6 +13,7 @@ def compute_loss_at_point(model, t, trained_params, random_vector, test_loader, 
     total_loss = 0.0
     with torch.no_grad():
         for images, labels in test_loader:
+            images, labels = images.to(device), labels.to(device)
             # apply parameters temporarily by using functional_call
             outputs = torch.func.functional_call(model, perturbed_params, images)
             loss = criterion(outputs, labels)
@@ -60,6 +62,7 @@ def analyze_loss_landscape_multi(model, test_loader, criterion, N_vec=5):
 
 
 def analyze_loss_landgrad(model, test_loader, criterion, N_vec):
+    device = next(model.parameters()).device
     trained_params = {name: param.data.clone() for name, param in model.named_parameters()}
     all_loss_values = []
     t_range = torch.linspace(-0.01, 0.01, 100)
@@ -71,6 +74,7 @@ def analyze_loss_landgrad(model, test_loader, criterion, N_vec):
         try:
             images, labels = next(data_iter)
             image, label = images[0].unsqueeze(0), labels[0].unsqueeze(0) # バッチから1つだけ取り出す
+            image, label = image.to(device), label.to(device)
         except StopIteration:
             print("データローダーの終端に達しました。")
             break
@@ -89,7 +93,7 @@ def analyze_loss_landgrad(model, test_loader, criterion, N_vec):
     return t_range, all_loss_values
 
 
-#元のコード
+#old version
 """
 def compute_loss_at_point(model, t, trained_params, random_vector, test_loader, criterion):
     for i, param in enumerate(model.parameters()):

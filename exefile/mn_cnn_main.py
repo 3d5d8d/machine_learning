@@ -5,16 +5,18 @@ import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 # ファイル名でインポート
+import torch
 from train.mn_cnn_train_lrs import Trainer
 from train.mn_cnn_train import train_model
-from analysis.mn_cnn_lossf import analyze_loss_landscape, analyze_loss_landscape_multi, analyze_loss_landgrad
+from analysis.mn_cnn_losslandscape import analyze_loss_landscape, analyze_loss_landscape_multi, analyze_loss_landgrad
 from visualization.mn_cnn_plots import plot_training_results 
 import torch.nn as nn
 
 def main():
     # 学習実行
     #model, train_losses, train_accuracies, test_accuracies, test_loader = train_model() #when using mn_cnn_train.py
-    trainer = Trainer(epochs=30, lr=0.001, batch_size=64)
+    device = torch.device("cpu")
+    trainer = Trainer(epochs=30, lr=0.001, batch_size=64, device=device)
     model, train_losses, train_accuracies, test_accuracies, test_loader = trainer.run()
     
     # 損失ランドスケープ分析

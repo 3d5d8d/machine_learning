@@ -10,9 +10,9 @@ from data.mn_data_loader import get_mnist_loaders
 from evaluate.mn_cnn_eval import evaluate_model
 
 class Trainer:
-    def __init__(self, epochs=None, lr=None, batch_size=None):
+    def __init__(self, device, epochs=None, lr=None, batch_size=None):
         self.epochs = epochs
-        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        self.device = device
         print(f"Using device: {self.device}")
 
         # 1. prepare TensorBoard SummaryWriter
