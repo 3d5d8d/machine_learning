@@ -15,8 +15,8 @@ import torch.nn as nn
 def main():
     # 学習実行
     #model, train_losses, train_accuracies, test_accuracies, test_loader = train_model() #when using mn_cnn_train.py
-    device = torch.device("cpu")
-    trainer = Trainer(epochs=30, lr=0.001, batch_size=64, device=device)
+    device = torch.device("cuda")
+    trainer = Trainer(epochs=200, lr=0.001, batch_size=64, device=device)
     model, train_losses, train_accuracies, test_accuracies, test_loader = trainer.run()
     
     # 損失ランドスケープ分析

@@ -73,15 +73,15 @@ def analyze_loss_landgrad(model, test_loader, criterion, N_vec):
 
         try:
             images, labels = next(data_iter)
-            image, label = images[0].unsqueeze(0), labels[0].unsqueeze(0) # バッチから1つだけ取り出す
-            image, label = image.to(device), label.to(device)
+            #image, label = images[0].unsqueeze(0), labels[0].unsqueeze(0) # バッチから1つだけ取り出す
+            images, labels = images.to(device), labels.to(device)
         except StopIteration:
             print("データローダーの終端に達しました。")
             break
         
         model.zero_grad()
-        output = model(image)
-        loss = criterion(output, label)
+        output = model(images)
+        loss = criterion(output, labels)
         grad_vector = torch.autograd.grad(loss, model.parameters())
     #↑ここまで追加
         loss_values = []
