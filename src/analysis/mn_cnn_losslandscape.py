@@ -1,5 +1,6 @@
 import torch
 import torch.func
+from math import sqrt, prod
 from tqdm import tqdm
 
 def compute_loss_at_point(model, t, trained_params, random_vector, test_loader, criterion):
@@ -67,10 +68,8 @@ def analyze_loss_landgrad(model, test_loader, criterion, N_vec):
     all_loss_values = []
     t_range = torch.linspace(-0.01, 0.01, 100)
 
-    #ここから↓
     data_iter = iter(test_loader)
     for i in range(N_vec):
-
         try:
             images, labels = next(data_iter)
             #image, label = images[0].unsqueeze(0), labels[0].unsqueeze(0) # バッチから1つだけ取り出す
@@ -83,10 +82,12 @@ def analyze_loss_landgrad(model, test_loader, criterion, N_vec):
         output = model(images)
         loss = criterion(output, labels)
         grad_vector = torch.autograd.grad(loss, model.parameters())
-    #↑ここまで追加
+        scales = [sqrt(prod(p.shape[1:])) if p.ndim > 1 else sqrt(p.shape[0]) for p in model.parameters()]
+        normalized_grad_vector = [d.div(scale) for (d, scale) in zip(grad_vector, scales)]
+
         loss_values = []
         for t in tqdm(t_range):
-            current_loss = compute_loss_at_point(model, t, trained_params, grad_vector, test_loader, criterion)
+            current_loss = compute_loss_at_point(model, t, trained_params, normalized_grad_vector, test_loader, criterion)
             loss_values.append(current_loss)
         all_loss_values.append(loss_values)
 
