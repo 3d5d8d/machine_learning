@@ -97,6 +97,17 @@ class Trainer:
         finally:
             self.writer.close()
             print("Finished Training. SummaryWriter closed.")
+
+            #モデルセーブするかの確認
+            save_confirm = input("Do you want to save the trained model? (y/n): ").lower()
+        
+            # 2. 'y'が入力された場合のみモデルを保存する
+            if save_confirm == 'y':
+                # モデルの重みを保存
+                save_path = "models/mnist_cnn_lrs_final.pt"
+                torch.save(self.model.state_dict(), save_path)
+                print(f"Model saved to {save_path}")
+            
         
         # 学習結果を返す
         return self.model, self.train_losses, self.train_accuracies, self.test_accuracies, self.test_loader

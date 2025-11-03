@@ -49,7 +49,7 @@ def analyze_loss_landscape(model, test_loader, criterion):
 def analyze_loss_landscape_multi(model, test_loader, criterion, N_vec=5):
     trained_params = {name: param.data.clone() for name, param in model.named_parameters()}
     all_loss_values = []
-    t_range = torch.linspace(-0.5, 0.5, 100)
+    t_range = torch.linspace(-0.01, 0.01, 100)
 
     for i in range(N_vec):
         random_vector = [torch.randn_like(param.data) for param in model.parameters()]
@@ -66,7 +66,7 @@ def analyze_loss_landgrad(model, test_loader, criterion, N_vec):
     device = next(model.parameters()).device
     trained_params = {name: param.data.clone() for name, param in model.named_parameters()}
     all_loss_values = []
-    t_range = torch.linspace(-0.01, 0.01, 100)
+    t_range = torch.linspace(-10, 10, 300)
 
     data_iter = iter(test_loader)
     for i in range(N_vec):
