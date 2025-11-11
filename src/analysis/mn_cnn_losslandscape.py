@@ -203,6 +203,115 @@ def analyze_loss_landgrad_for_tiny2(model, test_loader, criterion, N_vec):
 
     return t_range, all_loss_values
 
+# get Eigenvalue spectral density by calculating Hessian
+def _hessian_vector_product(loss, params, v):
+    """
+    Hessian-vector product (Hv) を計算するヘルパー関数。
+    Hessianを明示的に計算しない。
+    """
+    # 1回目の微分: 損失の勾配 grad_L を計算
+    grad_params = torch.autograd.grad(loss, params, create_graph=True)
+    
+    # grad_L とベクトル v の内積を計算
+    # grad_L はタプルなので、各要素の内積を計算して合計する
+    flat_grad = torch.cat([g.contiguous().view(-1) for g in grad_params])
+    v_dot_grad = torch.dot(flat_grad, v)
+    
+    # 2回目の微分: 内積の結果を再度パラメータで微分する
+    # これが (v^T H) に相当する
+    hvp = torch.autograd.grad(v_dot_grad, params, retain_graph=True)
+    
+    # タプル形式のhvpをフラットなベクトルに変換
+    flat_hvp = torch.cat([g.contiguous().view(-1) for g in hvp])
+    return flat_hvp
+
+def analyze_hessian_spectrum(model, data_loader, criterion, num_steps=30):
+    """
+    ランチョス法を用いてヘッセ行列の固有値スペクトルを計算する。
+    外部ライブラリに依存しない。
+
+    Args:
+        model (torch.nn.Module): 対象モデル
+        data_loader (torch.utils.data.DataLoader): 訓練データローダー
+        criterion (torch.nn.Module): 損失関数
+        num_steps (int): ランチョス法の反復回数（計算する固有値の数に相当）
+
+    Returns:
+        np.ndarray: 計算されたヘッセ行列の固有値
+    """
+    device = next(model.parameters()).device
+    model.eval()
+
+    try:
+        images, labels = next(iter(data_loader))
+        images, labels = images.to(device), labels.to(device)
+    except StopIteration:
+        print("データローダーが空です。")
+        return None
+
+    params = list(model.parameters())
+    num_params = sum(p.numel() for p in params)
+
+    outputs = model(images)
+    loss = criterion(outputs, labels)
+
+    q = torch.randn(num_params, device=device)
+    q /= torch.norm(q)
+    
+    # --- ここからが修正箇所 ---
+    q_list = [torch.zeros_like(q), q]
+    alpha_list = []
+    beta_list = []
+
+    print(f"ランチョス法を開始します (ステップ数: {num_steps})...")
+    for k in tqdm(range(num_steps)):
+        # ヘッセ行列ベクトル積 w_hat = Hq を計算
+        w_hat = _hessian_vector_product(loss, params, q_list[-1])
+
+        # alphaを計算
+        alpha = torch.dot(w_hat, q_list[-1])
+        alpha_list.append(alpha)
+
+        # 直交化
+        w = w_hat - alpha * q_list[-1]
+        if k > 0:
+            w = w - beta_list[-1] * q_list[-2]
+        
+        beta = torch.norm(w)
+        
+        if beta < 1e-6:
+            print(f"反復 {k+1} でBetaがゼロに収束したため、早期終了します。")
+            break
+        
+        # 最後の反復でない場合のみbetaをリストに追加
+        if k < num_steps - 1:
+            beta_list.append(beta)
+            q_list.append(w / beta)
+
+    # 実際に実行されたステップ数を取得
+    actual_steps = len(alpha_list)
+    if actual_steps == 0:
+        print("計算を1ステップも実行できませんでした。")
+        return None
+
+    # 実行されたステップ数で三重対角行列 T を構築
+    T = torch.zeros(actual_steps, actual_steps, device=device)
+    alphas = torch.tensor(alpha_list, device=device)
+    
+    T.diagonal(0).copy_(alphas)
+    if actual_steps > 1:
+        # beta_listはalpha_listより1つ少ない
+        betas = torch.tensor(beta_list, device=device)
+        T.diagonal(-1).copy_(betas)
+        T.diagonal(1).copy_(betas)
+    # --- ここまで修正 ---
+
+    eigenvalues = torch.linalg.eigh(T).eigenvalues
+    
+    print("ヘッセ行列の固有値計算が完了しました。")
+    return eigenvalues.cpu().numpy()
+
+
 #old version
 """
 def compute_loss_at_point(model, t, trained_params, random_vector, test_loader, criterion):

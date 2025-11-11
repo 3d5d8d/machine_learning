@@ -58,3 +58,27 @@ def plot_training_results(train_losses, train_accuracies, test_accuracies, t_ran
     plt.savefig('../results/figs/loss_landscape.png', dpi=300, bbox_inches='tight')
     plt.show()
     print("Loss Landscape を loss_landscape.png に保存しました")
+
+
+def plot_hessian_spectrum(eigenvalues, save_dir='../results/figs'):
+    """
+    ヘッセ行列の固有値スペクトル（分布）をプロットします。
+
+    Args:
+        eigenvalues (np.ndarray): 計算された固有値の配列。
+        save_dir (str): プロットを保存するディレクトリ。
+    """
+    os.makedirs(save_dir, exist_ok=True)
+    
+    plt.figure(figsize=(8, 6))
+    plt.hist(eigenvalues, bins=500, density=True)
+    plt.title('Hessian Eigenvalue Spectrum')
+    plt.xlabel('Eigenvalue (λ)')
+    plt.ylabel('Density')
+    plt.grid(True, alpha=0.3)
+    plt.tight_layout()
+    
+    save_path = os.path.join(save_dir, 'hessian_spectrum.png')
+    plt.savefig(save_path, dpi=300, bbox_inches='tight')
+    plt.show()
+    print(f"Hessian Spectrum plot を {save_path} に保存しました")
