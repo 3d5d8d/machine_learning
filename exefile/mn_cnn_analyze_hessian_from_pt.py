@@ -11,8 +11,9 @@ sys.path.append(project_root)
 # srcパッケージから必要なモジュールをインポート
 from src.models.mn_cnn_overlr import MNISTcnn_ovlr # 正しいモデルをインポート
 from src.data.mn_data_loader import get_mnist_loaders
-from src.analysis.mn_cnn_losslandscape import analyze_hessian_spectrum # 新しい関数
-from src.visualization.mn_cnn_plots import plot_hessian_spectrum # 新しい関数
+from src.analysis.mn_cnn_losslandscape import analyze_hessian_spectrum
+from src.analysis.mn_cnn_losslandscape import analyze_hessian_spectrum_ave
+from src.visualization.mn_cnn_plots import plot_hessian_spectrum
 
 def main():
     """
@@ -37,7 +38,8 @@ def main():
     criterion = nn.CrossEntropyLoss()
 
     # --- 4. ヘッセ行列の固有値スペクトルを計算 ---
-    eigenvalues = analyze_hessian_spectrum(model, train_loader, criterion, num_steps=50)
+    #eigenvalues = analyze_hessian_spectrum(model, train_loader, criterion, num_steps=500)
+    eigenvalues = analyze_hessian_spectrum_ave(model, train_loader, criterion, num_steps=500, num_samples=5)
 
     # --- 5. 結果をプロット ---
     if eigenvalues is not None:
