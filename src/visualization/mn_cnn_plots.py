@@ -82,3 +82,19 @@ def plot_hessian_spectrum(eigenvalues, save_dir='../results/figs'):
     plt.savefig(save_path, dpi=300, bbox_inches='tight')
     plt.show()
     print(f"Hessian Spectrum plot を {save_path} に保存しました")
+
+def plot_hessian_density(t_range, density, save_dir='../results/figs'):
+    os.makedirs(save_dir, exist_ok=True)
+    
+    plt.figure(figsize=(8, 6))
+    plt.plot(t_range, density, linewidth=2)
+    plt.title('Hessian Spectral Density')
+    plt.xlabel('Eigenvalue (λ)')
+    plt.ylabel('Density')
+    plt.grid(True, alpha=0.3)
+    plt.tight_layout()
+    
+    save_path = os.path.join(save_dir, 'hessian_density.png')
+    plt.savefig(save_path, dpi=300, bbox_inches='tight')
+    plt.show()
+    print(f"Hessian Density plot を {save_path} に保存しました")
