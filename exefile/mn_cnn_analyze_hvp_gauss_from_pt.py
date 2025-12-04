@@ -21,8 +21,8 @@ def main():
     学習済みモデルをロードし、ヘッセ行列の固有値スペクトルを計算・プロットする。
     """
     # --- 設定 ---
-    MODEL_PATH = 'models/mnist_cnn_lrs_1104.pt'
-    BATCH_SIZE = 128
+    MODEL_PATH = 'models/mnist_cnn_lrs_251104.pt'
+    BATCH_SIZE = 64 #loss function計算に用いるデータのバッチサイズ. criterionに渡すときに使う.
     DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
     print(f"Using device: {DEVICE}")
 
@@ -43,9 +43,9 @@ def main():
     t_range = np.linspace(-1, 1, 1000)
     density = compute_hessian_density(
         model, train_loader, criterion, 
-        num_steps=100, 
-        num_samples=5, 
-        n_vectors=10, 
+        num_steps=500, #batchを何回取得するか
+        num_samples=5, #Hvpを計算する際何回の平均をとるか
+        n_vectors=10, #最後に期待値とるときの試行回数k
         sigma=0.1, 
         t_range=t_range
     )
