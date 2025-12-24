@@ -473,9 +473,78 @@ def compute_hessian_density(model, data_loader, criterion, num_steps, num_sample
 
     # 正規化定数と試行回数kでの平均化
     normalization = 1.0 / (np.sqrt(2 * np.pi) * sigma * n_vectors)
-    return total_density * normalization
+    return total_density * normalization#old version
 
-#old version
+#最大固有値と対応ベクトルの解析
+def analyze_hessian_spectrum_ave3(model, data_loader, criterion, num_steps, num_samples):
+    device = next(model.parameters()).device
+    model.eval()
+
+    params = list(model.parameters())
+    num_params = sum(p.numel() for p in params)
+
+    q = torch.randn(num_params, device=device)
+    q /= torch.norm(q)
+    
+    q_list = [torch.zeros_like(q), q]
+    alpha_list = []
+    beta_list = []
+
+    print(f"ランチョス法を開始します (ステップ数: {num_steps}, バッチサンプル数: {num_samples})...")
+    for k in tqdm(range(num_steps)):
+        # 複数バッチで平均を取ったヘッセ行列ベクトル積を計算
+        w_hat = _Hessian_vector_product_for_ave(model, data_loader, criterion, params, q_list[-1], num_samples)
+
+        alpha = torch.dot(w_hat, q_list[-1])
+        alpha_list.append(alpha)
+
+        w = w_hat - alpha * q_list[-1]
+        if k > 0:
+            w = w - beta_list[-1] * q_list[-2]
+        
+        beta = torch.norm(w)
+        
+        if beta < 1e-8:
+            print(f"反復 {k+1} でBetaがゼロに収束したため、早期終了します。")
+            break
+        
+        if k < num_steps - 1:
+            beta_list.append(beta)
+            q_list.append(w / beta)
+
+    actual_steps = len(alpha_list)
+    if actual_steps == 0:
+        print("計算を1ステップも実行できませんでした。")
+        return None
+
+    T = torch.zeros(actual_steps, actual_steps, device=device)
+    alphas = torch.tensor(alpha_list, device=device)
+    
+    T.diagonal(0).copy_(alphas)
+    if actual_steps > 1:
+        betas = torch.tensor(beta_list, device=device)
+        T.diagonal(-1).copy_(betas)
+        T.diagonal(1).copy_(betas)
+
+    eigenvalues, eigenvectors = torch.linalg.eigh(T)
+
+    max_idx = torch.argmax(eigenvalues)
+    max_eigenvector = eigenvectors[:, max_idx]
+
+    print(f"最大固有値:{eigenvalues[max_idx].item()}")
+    print(f"固有ベクトル:{max_eigenvector}")
+
+    max_eigenvector_origin = torch.zeros_like(q_list[1])
+    for i in range(actual_steps):
+        max_eigenvector_origin += max_eigenvector[i] * q_list[i+1]
+    
+    return eigenvalues.cpu().numpy(), max_eigenvector_origin.cpu()
+    
+    
+    print("ヘッセ行列の固有値計算が完了しました。")
+    return eigenvalues.cpu().numpy()
+
+
 """
 def compute_loss_at_point(model, t, trained_params, random_vector, test_loader, criterion):
     for i, param in enumerate(model.parameters()):

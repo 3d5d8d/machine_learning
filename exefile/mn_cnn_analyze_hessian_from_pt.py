@@ -13,6 +13,7 @@ from src.models.mn_cnn_overlr import MNISTcnn_ovlr # 正しいモデルをイン
 from src.data.mn_data_loader import get_mnist_loaders
 from src.analysis.mn_cnn_losslandscape import analyze_hessian_spectrum
 from src.analysis.mn_cnn_losslandscape import analyze_hessian_spectrum_ave
+from src.analysis.mn_cnn_losslandscape import analyze_hessian_spectrum_ave3
 from src.visualization.mn_cnn_plots import plot_hessian_spectrum
 
 def main():
@@ -39,11 +40,20 @@ def main():
 
     # --- 4. ヘッセ行列の固有値スペクトルを計算 ---
     #eigenvalues = analyze_hessian_spectrum(model, train_loader, criterion, num_steps=500)
-    eigenvalues = analyze_hessian_spectrum_ave(model, train_loader, criterion, num_steps=500, num_samples=5)
+    #eigenvalues = analyze_hessian_spectrum_ave(model, train_loader, criterion, num_steps=100, num_samples=940)
+    eigenvalues, max_eigenvector = analyze_hessian_spectrum_ave3(model, train_loader, criterion, num_steps=10, num_samples=940)
+
 
     # --- 5. 結果をプロット ---
     if eigenvalues is not None:
         plot_hessian_spectrum(eigenvalues)
+
+        current_idx = 0  
+        for name, param in model.named_parameters():
+            num_params = param.numel()
+            contribution = torch.norm(max_eigenvector[current_idx : current_idx + num_params]).item()
+            print(f"{name:<30}:{contribution: .6f}")
+            current_idx += num_params
 
 if __name__ == '__main__':
     main()

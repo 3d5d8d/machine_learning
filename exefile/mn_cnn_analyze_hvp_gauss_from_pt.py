@@ -43,9 +43,9 @@ def main():
     t_range = np.linspace(-1, 1, 1000)
     density = compute_hessian_density(
         model, train_loader, criterion, 
-        num_steps=500, #batchを何回取得するか
-        num_samples=5, #Hvpを計算する際何回の平均をとるか
-        n_vectors=10, #最後に期待値とるときの試行回数k
+        num_steps=100, #ランチョス法の反復回数。どこまで次元落として射影するか
+        num_samples=940, #batchの取得回数. batchsizeとの積が全データ数を超えないと正しく固有値の近似ができない
+        n_vectors=10, #最後に期待値とるときの試行回数k 10
         sigma=0.1, 
         t_range=t_range
     )
