@@ -1,0 +1,43 @@
+\documentclass{ltjsarticle}      % ← ltjsarticle!
+\usepackage{luatexja-fontspec}   % 日本語フォント読み込み
+\usepackage{listings}            % コードハイライト用
+\usepackage{xcolor}              % 色指定用
+\usepackage{fancyvrb}            % 整形済みテキスト用
+\usepackage{url}
+
+\setmainjfont{Yu Mincho}         % 自由に変更 OK
+\setsansjfont{Yu Gothic}
+
+% コードスタイル設定
+\lstset{
+    language=bash,
+    basicstyle=\ttfamily\small,
+    backgroundcolor=\color{gray!10},
+    frame=single,
+    framesep=5pt,
+    breaklines=true,
+    showstringspaces=false,
+    commentstyle=\color{green!50!black},
+    keywordstyle=\color{blue},
+    stringstyle=\color{red}
+}
+
+\documentclass{jsarticle}
+\setlength{\parindent}{0pt}    % 段落の字下げをゼロにする
+\setlength{\parskip}{1em}      % 段落間のスペースを1文字分空ける
+\title{Machine learning disucussion}
+%\thanks{}
+\author{3d5d8d}
+\date{2025/11/02}
+
+\begin{document}
+\maketitle
+
+This document is a memorandum of a disucussion with prof.Mehmet.\par
+Reading this might not benefit anyone else.
+But, I will write this for the me of tomorrow - not the me of today - and fot those who might be intersted in my footsteps.\par
+
+\section{Fundementals of Machine Learning}
+In this paper, I primarily address discussions concerning Neural Network (NN). Very simple case, 
+
+\end{document}

@@ -538,6 +538,9 @@ def analyze_hessian_spectrum_ave3(model, data_loader, criterion, num_steps, num_
     for i in range(actual_steps):
         max_eigenvector_origin += max_eigenvector[i] * q_list[i+1]
     
+    # 正規化して返す（数値誤差でノルムが1からずれるのを防ぐ）2601014
+    max_eigenvector_origin /= torch.norm(max_eigenvector_origin)
+    
     return eigenvalues.cpu().numpy(), max_eigenvector_origin.cpu()
     
     

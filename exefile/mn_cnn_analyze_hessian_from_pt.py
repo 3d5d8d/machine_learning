@@ -51,7 +51,7 @@ def main():
         current_idx = 0  
         for name, param in model.named_parameters():
             num_params = param.numel()
-            contribution = torch.norm(max_eigenvector[current_idx : current_idx + num_params]).item()
+            contribution = torch.norm(max_eigenvector[current_idx : current_idx + num_params]).item()**2
             print(f"{name:<30}:{contribution: .6f}")
             current_idx += num_params
 
