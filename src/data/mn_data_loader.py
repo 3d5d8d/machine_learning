@@ -21,16 +21,15 @@ def create_mnist_augmentation(noise_level=0.1):
         #transform into tensor
         transforms.ToTensor(),
         
-        #additional noise
-        AddGaussianNoise(std=noise_level),
-        
         #Random erasing (cutout) -good for MNIST
         transforms.RandomErasing(
             p=0.3,
             scale=(0.02, 0.1),
             ratio=(0.3, 3.3),
-            value=0 #Fill with black(0) for MNIST
-        )
+            value="random" #Fill with black(0) for MNIST
+        ),
+        #additional noise
+        AddGaussianNoise(std=noise_level)
     ])
     
     

@@ -21,7 +21,7 @@ def main():
     # モデル読み込み
     device = torch.device("cuda")
     model = MNISTcnn_ovlr()
-    model_path = "models/mnist_cnn_lrs_1104.pt"
+    model_path = "models/mnist_cnn_lrs_erasevalue0_changed_260209.pt"
     model.load_state_dict(torch.load(model_path))
     model.to(device)
     _, test_loader = get_mnist_loaders(BATCH_SIZE=64)
