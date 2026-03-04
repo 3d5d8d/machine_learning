@@ -40,7 +40,7 @@
       "args": [
         "-NoExit",
         "-Command",
-        "& '${workspaceFolder}\\env\\Scripts\\Activate.ps1'"
+        "& '${workspaceFolder}\\env_gpu\\Scripts\\Activate.ps1'"
       ]
     }
   },

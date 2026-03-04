@@ -114,7 +114,7 @@ def main():
     print(f"Using device: {device}")
     
     model = MNISTcnn_ovlr()
-    model_path = "models/mnist_cnn_lrs_erasevalue0_changed_260209.pt"
+    model_path = "models\mnist_cnn_lrs_create_mn_aug2_260305.pt"
     model.load_state_dict(torch.load(model_path, map_location=device))
     model.to(device)
     print(f"Model loaded from {model_path}")
