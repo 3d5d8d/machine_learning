@@ -21,7 +21,7 @@ def main():
     学習済みモデルをロードし、ヘッセ行列の固有値スペクトルを計算・プロットする。
     """
     # --- 設定 ---
-    MODEL_PATH = 'models\mnist_cnn_lrs_create_mn_aug2_260305.pt'
+    MODEL_PATH = 'models\mnist_cnn_lrs_create_mn_aug2_260317_4.pt'
     BATCH_SIZE = 64 #loss function計算に用いるデータのバッチサイズ. criterionに渡すときに使う.
     DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
     print(f"Using device: {DEVICE}")

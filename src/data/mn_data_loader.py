@@ -40,17 +40,17 @@ class Randomaugment:
         choice = random.choices(["rotate", "translate", "scale"])
         magnitude = random.random()
         if choice =="rotate":
-            Max_angle=30.0 #The default value = 15
+            Max_angle=5.0 #The default value = 15
             angle = Max_angle*magnitude*random.choice([-1, 1])
             return transforms.functional.rotate(img, angle)
         elif choice == "translate":
-            max_tx = 0.3 #The default value = 0.1
-            max_ty = 0.3
+            max_tx = 0.5 #The default value = 0.1
+            max_ty = 0.5
             tx = max_tx*img.size[0]*random.choice([-1, 1])
             ty = max_ty*img.size[1]*random.choice([-1, 1])
             return transforms.functional.affine(img, angle=0, translate=[tx, ty], scale=1.0, shear=0)
         else:
-            max_scale = 0.4 #The default value = 0.2 
+            max_scale = 0.5 #The default value = 0.2 
             scale = 1.0 + (max_scale*magnitude*random.choice([-1, 1]))
             return transforms.functional.affine(img, angle=0, translate=[0, 0], scale=scale, shear=0)
 
