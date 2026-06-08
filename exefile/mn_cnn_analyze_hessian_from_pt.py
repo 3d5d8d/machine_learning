@@ -21,7 +21,7 @@ def main():
     学習済みモデルをロードし、ヘッセ行列の固有値スペクトルを計算・プロットする。
     """
     # --- 設定 ---
-    MODEL_PATH = 'models\mnist_cnn_lrs_create_mn_aug2_260317_4.pt'
+    MODEL_PATH = 'models\mnist_cnn_lrs_create_mn_aug2_260308.pt'
     BATCH_SIZE = 64 #loss function計算に用いるデータのバッチサイズ. criterionに渡すときに使う.
     DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
     print(f"Using device: {DEVICE}")
@@ -41,7 +41,7 @@ def main():
     # --- 4. ヘッセ行列の固有値スペクトルを計算 ---
     #eigenvalues = analyze_hessian_spectrum(model, train_loader, criterion, num_steps=500)
     #eigenvalues = analyze_hessian_spectrum_ave(model, train_loader, criterion, num_steps=100, num_samples=940)
-    eigenvalues, max_eigenvector = analyze_hessian_spectrum_ave3(model, train_loader, criterion, num_steps=10, num_samples=940)
+    eigenvalues, max_eigenvector = analyze_hessian_spectrum_ave3(model, train_loader, criterion, num_steps=100, num_samples=940)
 
 
     # --- 5. 結果をプロット ---

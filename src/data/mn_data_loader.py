@@ -11,9 +11,9 @@ def create_mnist_augmentation(noise_level=0.1):
     return transforms.Compose([
         #Geometric augmentations
         transforms.RandomAffine(
-            degrees=15, #Random rotation[-degrees, degrees]
+            degrees=0, #Random rotation[-degrees, degrees]
             translate=(0.1, 0.1),#random translation up to 10％
-            scale=(0.8, 1.2) #random scaling[0.8, 1.2]
+            scale=(0.5, 1.5) #random scaling[0.8, 1.2]
         ),
         #Photometric augmentations
         transforms.ColorJitter(
@@ -40,7 +40,7 @@ class Randomaugment:
         choice = random.choices(["rotate", "translate", "scale"])
         magnitude = random.random()
         if choice =="rotate":
-            Max_angle=5.0 #The default value = 15
+            Max_angle=45 #The default value = 15
             angle = Max_angle*magnitude*random.choice([-1, 1])
             return transforms.functional.rotate(img, angle)
         elif choice == "translate":

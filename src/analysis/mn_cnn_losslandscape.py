@@ -548,6 +548,103 @@ def analyze_hessian_spectrum_ave3(model, data_loader, criterion, num_steps, num_
     return eigenvalues.cpu().numpy()
 
 
+#特定のレイヤーだけを解析対象にする（他のレイヤーを固定260401）して固有値を計算
+# 引数に target_layer を追加（デフォルトは None で全層対象）
+def analyze_hessian_spectrum_ave4(model, data_loader, criterion, num_steps, num_samples, target_layer=None):
+    device = next(model.parameters()).device
+    model.eval()
+
+    # --- ここから変更 ---
+    if target_layer is None:
+        # 従来通りすべてのパラメータを対象とする
+        params = list(model.parameters())
+    else:
+        # 指定されたレイヤーのパラメータだけを抽出する
+        params = [p for name, p in model.named_parameters() if target_layer in name]
+        
+        # メモリ節約と計算グラフの遮断のため、対象外の層を固定する
+        for name, p in model.named_parameters():
+            if target_layer in name:
+                p.requires_grad = True
+            else:
+                p.requires_grad = False
+                
+        if len(params) == 0:
+            raise ValueError(f"'{target_layer}' という名前のレイヤーが見つかりません。")
+    # --- ここまで変更 ---
+
+    num_params = sum(p.numel() for p in params)
+
+    q = torch.randn(num_params, device=device)
+    q /= torch.norm(q)
+    
+    # ---------------------------------------------------------
+    # 以降のコード（q_listの作成、HVP計算、T行列の構築など）は
+    # 一切変更しなくてOKです！
+    # _Hessian_vector_product_for_ave は渡された params だけを使って
+    # HVPを計算するため、自動的に部分空間での固有値計算になります。
+    # ---------------------------------------------------------
+    q_list = [torch.zeros_like(q), q]
+    alpha_list = []
+    beta_list = []
+
+    print(f"ランチョス法を開始します (ステップ数: {num_steps}, バッチサンプル数: {num_samples})...")
+    for k in tqdm(range(num_steps)):
+        # 複数バッチで平均を取ったヘッセ行列ベクトル積を計算
+        w_hat = _Hessian_vector_product_for_ave(model, data_loader, criterion, params, q_list[-1], num_samples)
+
+        alpha = torch.dot(w_hat, q_list[-1])
+        alpha_list.append(alpha)
+
+        w = w_hat - alpha * q_list[-1]
+        if k > 0:
+            w = w - beta_list[-1] * q_list[-2]
+        
+        beta = torch.norm(w)
+        
+        if beta < 1e-8:
+            print(f"反復 {k+1} でBetaがゼロに収束したため、早期終了します。")
+            break
+        
+        if k < num_steps - 1:
+            beta_list.append(beta)
+            q_list.append(w / beta)
+
+    actual_steps = len(alpha_list)
+    if actual_steps == 0:
+        print("計算を1ステップも実行できませんでした。")
+        return None
+
+    T = torch.zeros(actual_steps, actual_steps, device=device)
+    alphas = torch.tensor(alpha_list, device=device)
+    
+    T.diagonal(0).copy_(alphas)
+    if actual_steps > 1:
+        betas = torch.tensor(beta_list, device=device)
+        T.diagonal(-1).copy_(betas)
+        T.diagonal(1).copy_(betas)
+
+    eigenvalues, eigenvectors = torch.linalg.eigh(T)
+
+    max_idx = torch.argmax(eigenvalues)
+    max_eigenvector = eigenvectors[:, max_idx]
+
+    print(f"最大固有値:{eigenvalues[max_idx].item()}")
+    print(f"固有ベクトル:{max_eigenvector}")
+
+    max_eigenvector_origin = torch.zeros_like(q_list[1])
+    for i in range(actual_steps):
+        max_eigenvector_origin += max_eigenvector[i] * q_list[i+1]
+    
+    # 正規化して返す（数値誤差でノルムが1からずれるのを防ぐ）2601014
+    max_eigenvector_origin /= torch.norm(max_eigenvector_origin)
+    
+    return eigenvalues.cpu().numpy(), max_eigenvector_origin.cpu()
+    
+    
+    print("ヘッセ行列の固有値計算が完了しました。")
+    return eigenvalues.cpu().numpy()
+    
 """
 def compute_loss_at_point(model, t, trained_params, random_vector, test_loader, criterion):
     for i, param in enumerate(model.parameters()):
