@@ -1,3 +1,4 @@
+import os
 from tqdm import tqdm
 import torch
 from torch.utils.tensorboard import SummaryWriter
@@ -33,7 +34,7 @@ def train_one_epoch(model, train_loader, criterion, optimizer, device, epoch=Non
 
 
 class Cifar10Trainer:
-    def __init__(self, model, train_loader, test_loader, criterion, optimizer, device, epochs, log_dir, scheduler=None):
+    def __init__(self, model, train_loader, test_loader, criterion, optimizer, device, epochs, log_dir, scheduler=None, save_dir=None, save_best=True, save_last=True):
         self.model = model
         self.train_loader, self.test_loader = train_loader, test_loader
         self.criterion = criterion
@@ -42,7 +43,11 @@ class Cifar10Trainer:
         self.epochs = epochs
         self.scheduler = scheduler
         self.writer = SummaryWriter(log_dir)
+        self.save_dir = save_dir
+        self.save_best = save_best
+        self.save_last = save_last
         
+        self.best_test_acc=0.0
         self.train_losses = []
         self.train_accuracies = []
         self.test_accuracies = []
@@ -86,6 +91,34 @@ class Cifar10Trainer:
                 
                 if self.scheduler is not None:
                     self.scheduler.step()
+                
+                if self.save_best and test_acc > self.best_test_acc:
+                    self.best_test_acc = test_acc
+                    self._save_checkpoint(epoch, "best.pt")
+                if self.save_last:
+                    self._save_checkpoint(epoch, "last.pt")
+                    
         finally:
             self.writer.close()
         return self.model, self.train_losses, self.train_accuracies, self.test_accuracies
+    
+    
+    def _save_checkpoint(self, epoch, filename):
+        if self.save_dir is None:
+            return
+
+        os.makedirs(self.save_dir, exist_ok=True)
+        save_path = os.path.join(self.save_dir, filename)
+
+        torch.save({
+            "epoch": epoch + 1,
+            "model_state_dict": self.model.state_dict(),
+            "optimizer_state_dict": self.optimizer.state_dict(),
+            "scheduler_state_dict": self.scheduler.state_dict() if self.scheduler else None,
+            "train_losses": self.train_losses,
+            "train_accuracies": self.train_accuracies,
+            "test_accuracies": self.test_accuracies,
+            "best_test_acc": self.best_test_acc,
+        }, save_path)
+
+        print(f"Checkpoint saved to {save_path}")
