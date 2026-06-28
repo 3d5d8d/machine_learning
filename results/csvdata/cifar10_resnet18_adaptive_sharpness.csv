@@ -1,3 +1,5 @@
 condition,layer,max_eigenvalue,l2_norm_sq,adaptive_sharpness,num_steps,num_samples,batch_size,model_path
-best,fc,0.00030282908119261265,376.5285477374128,0.1140237941541095,10,20,64,C:\Users\toria\MyProject\results\checkpoints\cifar10_resnet18_20260625-022105\best.pt
-last,fc,0.0003681721573229879,377.13855251410223,0.13885191448878598,10,20,64,C:\Users\toria\MyProject\results\checkpoints\cifar10_resnet18_20260625-022105\last.pt
+best,fc,0.00144616374745965,376.5285477374128,0.5445219356214767,20,100,64,C:\Users\toria\MyProject\results\checkpoints\cifar10_resnet18_20260625-022105\best.pt
+best,layer1,0.004919053055346012,8328.315229414427,40.967424475135765,20,100,64,C:\Users\toria\MyProject\results\checkpoints\cifar10_resnet18_20260625-022105\best.pt
+last,fc,0.003858941840007901,385.29015291744906,1.4868122916361866,20,100,64,C:\Users\toria\MyProject\results\checkpoints\cifar10_resnet18_20260627-010605\best.pt
+last,layer1,0.07696299999952316,8059.086476144855,620.2514724596936,20,100,64,C:\Users\toria\MyProject\results\checkpoints\cifar10_resnet18_20260627-010605\best.pt

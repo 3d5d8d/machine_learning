@@ -1,0 +1,20 @@
+{
+  "analysis_name": "ads_cifar10_resnet18",
+  "run_id": "20260627-191443",
+  "run_name": "20260627-191443_steps40_samples100_bs64",
+  "conditions": {
+    "checkpoint_20260625_best": "C:\\Users\\toria\\MyProject\\results\\checkpoints\\cifar10_resnet18_20260625-022105\\best.pt",
+    "checkpoint_20260627_best": "C:\\Users\\toria\\MyProject\\results\\checkpoints\\cifar10_resnet18_20260627-010605\\best.pt"
+  },
+  "target_layers": [
+    "fc",
+    "layer1"
+  ],
+  "batch_size": 64,
+  "num_steps": 40,
+  "num_samples": 100,
+  "device": "cuda",
+  "augment": false,
+  "use_custom_aug": false,
+  "use_random_erasing": false
+}

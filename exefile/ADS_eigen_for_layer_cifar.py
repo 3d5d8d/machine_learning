@@ -1,6 +1,8 @@
 import os
 import sys
 import csv
+import json
+from datetime import datetime
 
 import numpy as np
 import torch
@@ -32,35 +34,61 @@ def load_cifar10_resnet_checkpoint(model_path, device):
 
 
 def main():
+    analysis_name = "ads_cifar10_resnet18"
+
     conditions = {
-        "best": os.path.join(
+        "checkpoint_20260625_best": os.path.join(
             project_root,
             "results",
             "checkpoints",
             "cifar10_resnet18_20260625-022105",
             "best.pt",
         ),
-        "last": os.path.join(
+        "checkpoint_20260627_best": os.path.join(
             project_root,
             "results",
             "checkpoints",
-            "cifar10_resnet18_20260625-022105",
-            "last.pt",
+            "cifar10_resnet18_20260627-010605",
+            "best.pt",
         ),
     }
 
     target_layers = [
         "fc",
-        # "layer4.1",
-        # "layer4",
+        "layer1",
     ]
 
     batch_size = 64
-    num_steps = 10
-    num_samples = 20
+    num_steps = 40
+    num_samples = 100
+    run_id = datetime.now().strftime("%Y%m%d-%H%M%S")
+    run_name = f"{run_id}_steps{num_steps}_samples{num_samples}_bs{batch_size}"
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"Using device: {device}")
+
+    out_dir = os.path.join(project_root, "results", "analysis", analysis_name, run_name)
+    os.makedirs(out_dir, exist_ok=True)
+
+    config = {
+        "analysis_name": analysis_name,
+        "run_id": run_id,
+        "run_name": run_name,
+        "conditions": conditions,
+        "target_layers": target_layers,
+        "batch_size": batch_size,
+        "num_steps": num_steps,
+        "num_samples": num_samples,
+        "device": device,
+        "augment": False,
+        "use_custom_aug": False,
+        "use_random_erasing": False,
+    }
+
+    config_path = os.path.join(out_dir, "config.json")
+    with open(config_path, "w") as f:
+        json.dump(config, f, indent=2)
+    print(f"Saved config to {config_path}")
 
     train_loader, _ = get_cifar10_loaders(
         BATCH_SIZE=batch_size,
@@ -151,10 +179,7 @@ def main():
             for _, p in model.named_parameters():
                 p.requires_grad = True
 
-    out_dir = os.path.join(project_root, "results", "csvdata")
-    os.makedirs(out_dir, exist_ok=True)
-
-    out_path = os.path.join(out_dir, "cifar10_resnet18_adaptive_sharpness.csv")
+    out_path = os.path.join(out_dir, "adaptive_sharpness.csv")
 
     fieldnames = [
         "condition",
