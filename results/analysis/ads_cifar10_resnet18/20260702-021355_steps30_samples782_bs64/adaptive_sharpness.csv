@@ -1,0 +1,3 @@
+condition,layer,max_eigenvalue,l2_norm_sq,adaptive_sharpness,num_steps,num_samples,batch_size,model_path
+checkpoint_20260625_best,layer1,0.0016902955248951912,8328.315229414427,14.077313962195674,30,782,64,C:\Users\toria\MyProject\results\checkpoints\cifar10_resnet18_20260625-022105\best.pt
+checkpoint_20260627_best,layer1,0.011257066391408443,8059.086476144855,90.72167151606455,30,782,64,C:\Users\toria\MyProject\results\checkpoints\cifar10_resnet18_20260627-010605\best.pt

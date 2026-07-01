@@ -54,13 +54,12 @@ def main():
     }
 
     target_layers = [
-        "fc",
         "layer1",
     ]
 
     batch_size = 64
-    num_steps = 40
-    num_samples = 100
+    num_steps = 30
+    num_samples = 782
     run_id = datetime.now().strftime("%Y%m%d-%H%M%S")
     run_name = f"{run_id}_steps{num_steps}_samples{num_samples}_bs{batch_size}"
 
