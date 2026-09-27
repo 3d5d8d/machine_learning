@@ -1,0 +1,29 @@
+{
+  "run_id": "20260928-023901",
+  "checkpoint_path": "C:\\Users\\toria\\MyProject\\results\\checkpoints\\shakespeare_gpt.pt",
+  "checkpoint_step": 10,
+  "checkpoint_val_loss": 3.683069086074829,
+  "device": "cuda",
+  "analysis_split": "train",
+  "analysis_batch_size": 16,
+  "num_batches": 5,
+  "seed": 42,
+  "run_1d_landscape": true,
+  "run_2d_landscape": false,
+  "run_hessian": true,
+  "landscape_radius": 0.5,
+  "landscape_1d_points": 41,
+  "landscape_2d_points": 21,
+  "direction_normalization": "parameter",
+  "hessian_steps": 10,
+  "hessian_target_name": null,
+  "model_config": {
+    "block_size": 128,
+    "vocab_size": 65,
+    "n_layer": 1,
+    "n_head": 4,
+    "n_embd": 128,
+    "dropout": 0.1,
+    "bias": false
+  }
+}
