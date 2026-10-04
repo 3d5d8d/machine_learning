@@ -1,0 +1,17 @@
+{
+  "model": "EleutherAI/pythia-70m",
+  "revision": "step143000",
+  "commit": "de3e4e2d6cbb3b1a51f90fe153ea51fcd8c7c852",
+  "split": "eval",
+  "data_sha256": "e42c2a565886194edcf92b7c44cca8230a9a79e4ee3095609444603b037a557a",
+  "num_sequences": 2,
+  "block_size": 2048,
+  "batch_size": 1,
+  "seed": 42,
+  "radius": 0.1,
+  "normalization": "parameter",
+  "points_1d": 21,
+  "device": "cuda",
+  "dtype": "float32",
+  "torch": "2.5.1+cu121"
+}

@@ -1,0 +1,4 @@
+# The root data/ rule also ignores source loaders; expose only the new loader.
+!/data/
+/data/*
+!/data/pythia_data.py

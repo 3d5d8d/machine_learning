@@ -1,0 +1,10 @@
+# Reuse the existing CUDA-enabled PyTorch installation.
+torch>=2.5,<2.6
+transformers==4.46.3
+huggingface-hub>=0.26,<1
+safetensors>=0.4.3
+numpy>=1.26
+requests>=2.31
+zstandard>=0.22
+tqdm>=4.66
+matplotlib>=3.8
